@@ -46,10 +46,17 @@
             cursor: pointer;
             font-size: 1rem;
         }
+        input {
+            margin-top: 10px;
+            padding: 5px;
+            font-size: 1rem;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
     <h1>Kiss Measurement Scanner</h1>
+    <input type="text" id="nameInput" placeholder="Enter name...">
     <div style="position: relative;">
         <video id="video" autoplay playsinline></video>
         <div class="scan-line"></div>
@@ -60,6 +67,7 @@
     <script>
         const video = document.getElementById('video');
         const measurement = document.getElementById('measurement');
+        const nameInput = document.getElementById('nameInput');
 
         async function startCamera() {
             try {
@@ -72,12 +80,31 @@
         }
 
         function startMeasurement() {
+            const name = nameInput.value.trim();
+            if (!name) {
+                alert("Please enter a name first!");
+                return;
+            }
+
             measurement.style.opacity = '0';
             setTimeout(() => {
-                const randomSize = Math.floor(Math.random() * (500 - 200 + 1)) + 200;
+                let randomSize;
+                if (localStorage.getItem(name)) {
+                    randomSize = localStorage.getItem(name);
+                } else {
+                    randomSize = Math.floor(Math.random() * (500 - 200 + 1)) + 200;
+                    localStorage.setItem(name, randomSize);
+                }
                 measurement.innerText = `${randomSize} 💋`;
                 measurement.style.opacity = '1';
             }, 2000);
+        }
+
+        // Register service worker for offline support
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js')
+                .then(() => console.log("Service Worker Registered"))
+                .catch(error => console.error("Service Worker Registration Failed", error));
         }
 
         startCamera();
